@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HamsterGame creator operation",
+  "type": "object",
+  "required": [
+    "action"
+  ],
+  "properties": {
+    "action": {
+      "enum": [
+        "add_entity",
+        "remove_entity",
+        "update_entity",
+        "move_entity",
+        "add_room",
+        "update_room",
+        "link_rooms",
+        "add_item",
+        "add_recipe",
+        "add_quest",
+        "set_player",
+        "set_style"
+      ]
+    },
+    "room_id": {
+      "type": "string"
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "entity": {
+      "type": "object"
+    },
+    "patch": {
+      "type": "object"
+    },
+    "x": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "y": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "additionalProperties": true
+}
