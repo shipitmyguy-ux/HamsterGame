@@ -1,0 +1,34 @@
+{
+  "id": "approved_chibi_pixel_mobile_v1",
+  "art_direction": "cute chibi pixel art",
+  "inspiration": "cozy indie pixel life sim; original assets only",
+  "tile_size": 32,
+  "perspective": "top-down slight three-quarter",
+  "palette": "warm pastel",
+  "character": {
+    "large_head": true,
+    "round_body": true,
+    "short_feet": true,
+    "high_expression": true,
+    "directional_frames": 4
+  },
+  "rendering": {
+    "nearest_neighbor": true,
+    "y_sort": true
+  },
+  "ui": {
+    "touch_first": true,
+    "min_touch_target_px": 44,
+    "movement": "lower-left",
+    "context_actions": "lower-right",
+    "hotbar": "bottom",
+    "goal": "always readable"
+  },
+  "generation_rules": [
+    "preserve silhouette",
+    "transparent background for sprites",
+    "consistent light direction",
+    "no text baked into sprites",
+    "use approved hamster proportions"
+  ]
+}
