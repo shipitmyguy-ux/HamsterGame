@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HamsterGame entity",
+  "type": "object",
+  "required": [
+    "id",
+    "archetype",
+    "position"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string"
+    },
+    "archetype": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asset": {
+      "type": "string"
+    },
+    "emoji": {
+      "type": "string"
+    },
+    "position": {
+      "type": "object",
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "physics": {
+      "type": "object"
+    },
+    "placement": {
+      "type": "object"
+    },
+    "interaction": {
+      "type": "object"
+    },
+    "sorting": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}
