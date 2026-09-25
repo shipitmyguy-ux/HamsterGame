@@ -125,8 +125,7 @@ class GameScene extends Phaser.Scene{
     const shadow=this.add.ellipse(0,4,40,10,0x3d2c20,.18);
     const idle=this.standardAssets.hamster.directions.down[0];
     this.playerSprite=this.add.sprite(0,0,"hamster-standard",idle)
-      .setOrigin(.5,1)
-      .setScale(this.standardAssets.playerScale);
+      .setOrigin(.5,1);
     this.player=this.add.container(W*.5,H*.62,[shadow,this.playerSprite]).setSize(54,56);
     this.physics.add.existing(this.player);
     this.playerBody=this.player.body as Phaser.Physics.Arcade.Body;
@@ -179,18 +178,13 @@ class GameScene extends Phaser.Scene{
     let visual:{x:number;y:number;width:number;height:number};
 
     if(standard){
-      const scale=this.standardAssets.worldScale;
       sprite=this.add.image(x,y,"std:"+standard.sheet,standard.frame)
         .setOrigin(.5,1)
-        .setScale(scale)
         .setDepth(y);
-      visual=visibleBoundsFor(x,y,standard,scale);
+      visual=visibleBoundsFor(x,y,standard);
     }else{
       const texture=this.textureForAsset(entity.asset,fallback);
       sprite=this.add.image(x,y,texture).setOrigin(.5,1).setDepth(y);
-      const baseW=this.textures.get(fallback).getSourceImage().width||48;
-      const baseH=this.textures.get(fallback).getSourceImage().height||48;
-      sprite.setDisplaySize(baseW*1.35,baseH*1.35);
       const b=sprite.getBounds();
       visual={x:b.x,y:b.y,width:b.width,height:b.height};
     }
