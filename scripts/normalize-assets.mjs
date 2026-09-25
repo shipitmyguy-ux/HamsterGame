@@ -306,8 +306,8 @@ const manifest={
   schema:2,
   version:fingerprint,
   pixelQuantum:PIXEL_QUANTUM,
-  worldScale:1.7,
-  playerScale:2.15,
+  worldScale:2,
+  playerScale:2,
   sheets,
   assets,
   hamster
