@@ -1,0 +1,224 @@
+{
+  "version": 1,
+  "sourceAtlas": "public/assets/environment_atlas.png",
+  "hamsterSource": "public/assets/hamster_walk_4dir.png",
+  "sheets": {
+    "items32": {
+      "cell": 32,
+      "gutter": 2,
+      "columns": 4
+    },
+    "props64": {
+      "cell": 64,
+      "gutter": 4,
+      "columns": 4
+    },
+    "structures96": {
+      "cell": 96,
+      "gutter": 4,
+      "columns": 2
+    }
+  },
+  "assets": [
+    {
+      "id": "wheel_home",
+      "sheet": "structures96",
+      "source": {
+        "x": 2,
+        "y": 2,
+        "w": 92,
+        "h": 96
+      }
+    },
+    {
+      "id": "wood_hideout",
+      "sheet": "props64",
+      "source": {
+        "x": 97,
+        "y": 2,
+        "w": 64,
+        "h": 48
+      }
+    },
+    {
+      "id": "strawberry_hideout",
+      "sheet": "props64",
+      "source": {
+        "x": 163,
+        "y": 2,
+        "w": 62,
+        "h": 59
+      }
+    },
+    {
+      "id": "purple_hideout",
+      "sheet": "props64",
+      "source": {
+        "x": 8,
+        "y": 100,
+        "w": 49,
+        "h": 53
+      }
+    },
+    {
+      "id": "tunnel_short",
+      "sheet": "props64",
+      "source": {
+        "x": 59,
+        "y": 100,
+        "w": 48,
+        "h": 38
+      }
+    },
+    {
+      "id": "tunnel_long",
+      "sheet": "props64",
+      "source": {
+        "x": 112,
+        "y": 100,
+        "w": 61,
+        "h": 39
+      }
+    },
+    {
+      "id": "water_bottle",
+      "sheet": "props64",
+      "source": {
+        "x": 181,
+        "y": 104,
+        "w": 22,
+        "h": 43
+      }
+    },
+    {
+      "id": "food_bowl",
+      "sheet": "props64",
+      "source": {
+        "x": 2,
+        "y": 158,
+        "w": 55,
+        "h": 42
+      }
+    },
+    {
+      "id": "bedding_box",
+      "sheet": "props64",
+      "source": {
+        "x": 60,
+        "y": 162,
+        "w": 56,
+        "h": 49
+      }
+    },
+    {
+      "id": "stairs",
+      "sheet": "props64",
+      "source": {
+        "x": 118,
+        "y": 164,
+        "w": 42,
+        "h": 41
+      }
+    },
+    {
+      "id": "ladder",
+      "sheet": "props64",
+      "source": {
+        "x": 163,
+        "y": 158,
+        "w": 18,
+        "h": 35
+      }
+    },
+    {
+      "id": "drawer",
+      "sheet": "props64",
+      "source": {
+        "x": 184,
+        "y": 158,
+        "w": 34,
+        "h": 34
+      }
+    },
+    {
+      "id": "plant",
+      "sheet": "props64",
+      "source": {
+        "x": 7,
+        "y": 221,
+        "w": 29,
+        "h": 30
+      }
+    },
+    {
+      "id": "rug",
+      "sheet": "props64",
+      "source": {
+        "x": 49,
+        "y": 222,
+        "w": 37,
+        "h": 19
+      }
+    },
+    {
+      "id": "sticks",
+      "sheet": "items32",
+      "source": {
+        "x": 100,
+        "y": 214,
+        "w": 37,
+        "h": 23
+      }
+    },
+    {
+      "id": "fluff",
+      "sheet": "items32",
+      "source": {
+        "x": 151,
+        "y": 221,
+        "w": 41,
+        "h": 30
+      }
+    },
+    {
+      "id": "seeds",
+      "sheet": "items32",
+      "source": {
+        "x": 198,
+        "y": 219,
+        "w": 25,
+        "h": 16
+      }
+    },
+    {
+      "id": "bolt",
+      "sheet": "items32",
+      "source": {
+        "x": 8,
+        "y": 260,
+        "w": 26,
+        "h": 26
+      }
+    },
+    {
+      "id": "nut",
+      "sheet": "items32",
+      "source": {
+        "x": 36,
+        "y": 263,
+        "w": 25,
+        "h": 23
+      }
+    },
+    {
+      "id": "clover",
+      "sheet": "items32",
+      "source": {
+        "x": 64,
+        "y": 260,
+        "w": 25,
+        "h": 22
+      }
+    }
+  ]
+}
