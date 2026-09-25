@@ -9,7 +9,12 @@ const FINAL_RENDER_MULTIPLIER=2;
 const catalogPath=path.join(root,"assets","asset-catalog.json");
 const catalog=JSON.parse(await fs.readFile(catalogPath,"utf8"));
 const sourceAtlas=path.join(root,catalog.sourceAtlas);
-const hamsterSource=path.join(root,catalog.hamsterSource);
+const hamsterSource=path.join(root,"assets","source","hamster_source.png");
+const canonicalSheets={
+  items32:path.join(root,"assets","source","items_source.png"),
+  props64:path.join(root,"assets","source","props_source.png"),
+  structures96:path.join(root,"assets","source","wheel_source.png")
+};
 const outDir=path.join(root,"public","assets","generated");
 await fs.mkdir(outDir,{recursive:true});
 
@@ -168,17 +173,38 @@ async function buildSheet(sheetId,assets){
 
   for(let index=0;index<assets.length;index++){
     const asset=assets[index];
-    const raw=await sharp(sourceAtlas)
-      .extract({
-        left:asset.source.x,
-        top:asset.source.y,
-        width:asset.source.w,
-        height:asset.source.h
-      })
-      .png()
-      .toBuffer();
+    const canonicalPath=canonicalSheets[sheetId];
+    let raw;
+    if(canonicalPath){
+      const sourceCol=index%spec.columns;
+      const sourceRow=Math.floor(index/spec.columns);
+      raw=await sharp(canonicalPath)
+        .extract({
+          left:sourceCol*sourceCell,
+          top:sourceRow*sourceCell,
+          width:sourceCell,
+          height:sourceCell
+        })
+        .png()
+        .toBuffer();
+    }else{
+      raw=await sharp(sourceAtlas)
+        .extract({
+          left:asset.source.x,
+          top:asset.source.y,
+          width:asset.source.w,
+          height:asset.source.h
+        })
+        .png()
+        .toBuffer();
+    }
 
-    const normalized=await normalizeSprite(raw,finalCell,finalGutter);
+    const normalized=canonicalPath
+      ? {
+          buffer:await pixelateFixedCell(raw,finalCell),
+          content:await contentBounds(await pixelateFixedCell(raw,finalCell))
+        }
+      : await normalizeSprite(raw,finalCell,finalGutter);
     const col=index%spec.columns;
     const row=Math.floor(index/spec.columns);
 
