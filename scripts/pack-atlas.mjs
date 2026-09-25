@@ -5,6 +5,7 @@ import texturePacker from "free-tex-packer-core";
 const sourceDir = path.resolve("assets/source");
 const outDir = path.resolve("public/assets/generated");
 const atlasName = process.argv[2] || "hamster-atlas";
+console.warn("pack-atlas is for exceptional/freeform atlases only; world sprites use assets:normalize.");
 
 async function walk(dir){
   const entries = await fs.readdir(dir,{withFileTypes:true}).catch(()=>[]);
@@ -40,7 +41,7 @@ const options = {
   extrude: 1,
   allowRotation: false,
   detectIdentical: true,
-  allowTrim: true,
+  allowTrim: false,
   exporter: "Phaser3",
   removeFileExtension: true,
   prependFolderName: true
