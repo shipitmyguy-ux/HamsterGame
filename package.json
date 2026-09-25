@@ -1,16 +1,17 @@
 {
   "name": "hamster-game",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run assets:normalize && tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "atlas:pack": "node scripts/pack-atlas.mjs",
     "map:import": "node scripts/import-tiled.mjs",
-    "pipeline:check": "npm run typecheck && npm run build"
+    "pipeline:check": "npm run assets:normalize && npm run typecheck && vite build",
+    "assets:normalize": "node scripts/normalize-assets.mjs"
   },
   "dependencies": {
     "grid-engine": "2.48.2",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "free-tex-packer-core": "0.3.9",
     "typescript": "5.9.2",
-    "vite": "7.3.6"
+    "vite": "7.3.6",
+    "sharp": "0.34.4"
   }
 }
