@@ -16,7 +16,7 @@ function cors(req: Request) {
   const origin = req.headers.get("origin") || "";
   return {
     "Access-Control-Allow-Origin": ALLOWED.has(origin) ? origin : "https://shipitmyguy-ux.github.io",
-    "Access-Control-Allow-Headers": "content-type,authorization,apikey",
+    "Access-Control-Allow-Headers": "content-type,authorization,apikey,x-hamster-creator",
     "Access-Control-Allow-Methods": "POST,OPTIONS",
     "Content-Type": "application/json",
     "Cache-Control": "no-store",
@@ -56,9 +56,24 @@ function claims(req: Request) {
     return JSON.parse(atob(normalized));
   } catch { return {}; }
 }
-function isCreator(req: Request) {
-  const c: any = claims(req);
-  return c?.app_metadata?.hamster_creator === true;
+async function sha256(value:string){
+  const bytes=new TextEncoder().encode(value);
+  const hash=await crypto.subtle.digest("SHA-256",bytes);
+  return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+async function isCreator(req: Request) {
+  const c:any=claims(req);
+  if(c?.app_metadata?.hamster_creator===true)return true;
+  const email=String(c?.email||"").trim().toLowerCase();
+  if(email){
+    const rows=await rest("hamster_creators?email=eq."+encodeURIComponent(email)+"&enabled=eq.true&select=email&limit=1");
+    if(rows?.length)return true;
+  }
+  const token=String(req.headers.get("x-hamster-creator")||"").trim();
+  if(!token)return false;
+  const hash=await sha256(token);
+  const rows=await rest("hamster_creator_tokens?token_hash=eq."+hash+"&enabled=eq.true&select=token_hash&limit=1");
+  return Boolean(rows?.length);
 }
 function clone<T>(v: T): T { return structuredClone(v); }
 function uid(prefix: string) { return prefix + "_" + crypto.randomUUID().slice(0, 8); }
@@ -227,7 +242,7 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json(req,{error:"POST required"},405);
   const origin = req.headers.get("origin") || "";
   if (origin && !ALLOWED.has(origin)) return json(req,{error:"origin not allowed"},403);
-  if (!isCreator(req)) return json(req,{error:"creator access required"},403);
+  if (!(await isCreator(req))) return json(req,{error:"creator access required"},403);
 
   try {
     const body = await req.json();
