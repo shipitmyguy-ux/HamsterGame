@@ -1,26 +1,26 @@
 export type AtlasFrame={x:number;y:number;w:number;h:number};
 
 export const ENV_FRAMES:Record<string,AtlasFrame>={
-  wheel_home:{x:2,y:2,w:93,h:96},
-  wood_hideout:{x:97,y:2,w:64,h:53},
-  strawberry_hideout:{x:163,y:2,w:64,h:60},
-  purple_hideout:{x:2,y:100,w:55,h:56},
-  tunnel_short:{x:59,y:100,w:48,h:39},
-  tunnel_long:{x:109,y:100,w:64,h:43},
-  water_bottle:{x:175,y:100,w:32,h:48},
-  food_bowl:{x:2,y:158,w:56,h:43},
-  bedding_box:{x:60,y:158,w:56,h:54},
-  stairs:{x:118,y:158,w:43,h:48},
-  ladder:{x:163,y:158,w:20,h:40},
-  drawer:{x:184,y:158,w:40,h:39},
-  plant:{x:2,y:214,w:40,h:38},
-  rug:{x:44,y:214,w:48,h:32},
-  sticks:{x:94,y:214,w:48,h:23},
-  fluff:{x:144,y:214,w:48,h:39},
-  seeds:{x:194,y:214,w:32,h:22},
-  bolt:{x:2,y:255,w:32,h:32},
-  nut:{x:36,y:255,w:26,h:32},
-  clover:{x:64,y:255,w:32,h:29}
+  wheel_home:{x:2,y:2,w:92,h:96},
+  wood_hideout:{x:97,y:2,w:64,h:48},
+  strawberry_hideout:{x:163,y:2,w:64,h:59},
+  purple_hideout:{x:8,y:100,w:49,h:53},
+  tunnel_short:{x:59,y:100,w:48,h:38},
+  tunnel_long:{x:112,y:100,w:61,h:39},
+  water_bottle:{x:181,y:104,w:22,h:43},
+  food_bowl:{x:2,y:158,w:55,h:42},
+  bedding_box:{x:60,y:162,w:56,h:49},
+  stairs:{x:118,y:164,w:42,h:41},
+  ladder:{x:163,y:158,w:18,h:35},
+  drawer:{x:184,y:158,w:34,h:34},
+  plant:{x:7,y:221,w:29,h:30},
+  rug:{x:49,y:222,w:37,h:19},
+  sticks:{x:100,y:214,w:37,h:23},
+  fluff:{x:151,y:221,w:41,h:30},
+  seeds:{x:198,y:219,w:25,h:16},
+  bolt:{x:8,y:260,w:26,h:26},
+  nut:{x:36,y:263,w:25,h:23},
+  clover:{x:64,y:260,w:25,h:22}
 };
 
 export const ENV_SCALE:Record<string,number>={
