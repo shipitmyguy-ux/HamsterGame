@@ -48,18 +48,19 @@
       }
     },
     "baseline": "bottom aligned inside protected gutter",
-    "runtime_world_scale": 2,
     "rules": [
-      "all production world art uses the same 2x pixel quantum",
+      "production sprites are emitted at final on-screen pixel dimensions",
+      "Phaser renderer scale for production sprites is always exactly 1",
+      "do not call setScale or setDisplaySize on production sprites",
+      "all production world art uses one shared authored pixel density",
       "all hamster animation frames preserve fixed registration",
       "world sprites must be normalized before runtime",
       "runtime must never hand-crop production sprite sheets",
       "do not trim standardized cells after normalization",
       "opaque pixels may not enter the protected gutter",
-      "collision derives from visible content bounds, not full transparent cell",
-      "runtime sprite scale must be an integer to preserve pixel block consistency"
+      "collision derives from visible content bounds, not full transparent cell"
     ],
     "pixel_quantum": 2,
-    "player_scale": 2
+    "renderer_scale": 1
   }
 }
