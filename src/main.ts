@@ -5,13 +5,18 @@ import "./styles.css";
 import { loadWorld, publicAssetUrl } from "./world";
 import { buildNavigationGrid } from "./pipeline/navigation";
 import { drawRoomBackdrop, ensurePixelTextures, textureForArchetype } from "./render/pixelArt";
-import { ENV_FRAMES, ENV_SCALE, HAMSTER_FRAMES, localFrameFor, type HamsterFacing } from "./render/assetFrames";
+import {
+  loadStandardAssets,
+  visibleBoundsFor,
+  type StandardAssetManifest
+} from "./render/standardAssets";
 import type { Archetype, Entity, Room, WorldPayload } from "./types";
 
 const W=960,H=600;
 const status=document.querySelector<HTMLDivElement>("#status")!;
 const roomBar=document.querySelector<HTMLDivElement>("#room-bar")!;
 const movement={up:false,down:false,left:false,right:false};
+type Facing="up"|"down"|"left"|"right";
 
 function setStatus(text:string){status.textContent=text}
 function bindHold(button:HTMLElement,key:keyof typeof movement){
@@ -22,15 +27,18 @@ function bindHold(button:HTMLElement,key:keyof typeof movement){
   button.addEventListener("pointercancel",off);
   button.addEventListener("lostpointercapture",()=>movement[key]=false);
 }
-document.querySelectorAll<HTMLElement>("[data-move]").forEach(b=>bindHold(b,b.dataset.move as keyof typeof movement));
+document.querySelectorAll<HTMLElement>("[data-move]").forEach(
+  b=>bindHold(b,b.dataset.move as keyof typeof movement)
+);
 
 class GameScene extends Phaser.Scene{
   payload!:WorldPayload;
+  standardAssets!:StandardAssetManifest;
   currentRoom="";
   player!:Phaser.GameObjects.Container;
   playerBody!:Phaser.Physics.Arcade.Body;
   playerSprite!:Phaser.GameObjects.Sprite;
-  facing:HamsterFacing="down";
+  facing:Facing="down";
   blockers!:Phaser.Physics.Arcade.StaticGroup;
   arrows!:Phaser.Types.Input.Keyboard.CursorKeys;
   wasd!:Record<string,Phaser.Input.Keyboard.Key>;
@@ -40,12 +48,6 @@ class GameScene extends Phaser.Scene{
 
   constructor(){super("game")}
 
-  preload(){
-    const base=import.meta.env.BASE_URL;
-    this.load.spritesheet("hamster-walk",base+"assets/hamster_walk_4dir.png?asset=0d0903a",{frameWidth:32,frameHeight:32});
-    this.load.image("env-atlas",base+"assets/environment_atlas.png?asset=0d0903a");
-  }
-
   async create(){
     try{
       this.payload=await loadWorld("draft");
@@ -53,10 +55,12 @@ class GameScene extends Phaser.Scene{
       this.currentRoom=this.payload.world.player.start_room||Object.keys(this.payload.world.rooms)[0];
       this.arrows=this.input.keyboard!.createCursorKeys();
       this.wasd=this.input.keyboard!.addKeys("W,A,S,D") as Record<string,Phaser.Input.Keyboard.Key>;
+
       ensurePixelTextures(this);
-      this.registerLocalFrames();
+      this.standardAssets=await loadStandardAssets(this);
       this.createHamsterAnimations();
       await this.loadGeneratedAssets();
+
       this.createPlayer();
       this.openRoom(this.currentRoom);
       this.createTouchJoystick();
@@ -66,27 +70,13 @@ class GameScene extends Phaser.Scene{
     }
   }
 
-  registerLocalFrames(){
-    const texture=this.textures.get("env-atlas");
-    const source=texture.getSourceImage() as HTMLImageElement;
-    if(!source||source.width!==256||source.height!==320){
-      throw new Error("Habitat atlas failed validation");
-    }
-    for(const [name,frame] of Object.entries(ENV_FRAMES)){
-      if(frame.x+frame.w>source.width||frame.y+frame.h>source.height){
-        throw new Error("Habitat frame out of bounds: "+name);
-      }
-      if(!texture.has(name))texture.add(name,0,frame.x,frame.y,frame.w,frame.h);
-    }
-  }
-
   createHamsterAnimations(){
-    for(const [direction,frames] of Object.entries(HAMSTER_FRAMES)){
+    for(const [direction,frames] of Object.entries(this.standardAssets.hamster.directions)){
       const key="hamster-walk-"+direction;
       if(this.anims.exists(key))continue;
       this.anims.create({
         key,
-        frames:frames.map(frame=>({key:"hamster-walk",frame})),
+        frames:frames.map(frame=>({key:"hamster-standard",frame})),
         frameRate:8,
         repeat:-1
       });
@@ -115,9 +105,17 @@ class GameScene extends Phaser.Scene{
     try{
       const plugin=this.plugins.get("rexVirtualJoystick") as any;
       if(!plugin?.add)return;
-      const base=this.add.circle(92,H-92,58,0x513728,.24).setStrokeStyle(4,0xf7dfac,.8).setDepth(20000).setScrollFactor(0);
-      const thumb=this.add.circle(0,0,28,0xf7dfac,.88).setStrokeStyle(3,0x6c4935,.95).setDepth(20001).setScrollFactor(0);
-      const joystick=plugin.add(this,{x:92,y:H-92,radius:58,base,thumb,dir:"8dir",forceMin:8,enable:true});
+      const base=this.add.circle(92,H-92,58,0x513728,.24)
+        .setStrokeStyle(4,0xf7dfac,.8)
+        .setDepth(20000)
+        .setScrollFactor(0);
+      const thumb=this.add.circle(0,0,28,0xf7dfac,.88)
+        .setStrokeStyle(3,0x6c4935,.95)
+        .setDepth(20001)
+        .setScrollFactor(0);
+      const joystick=plugin.add(this,{
+        x:92,y:H-92,radius:58,base,thumb,dir:"8dir",forceMin:8,enable:true
+      });
       this.joyKeys=joystick.createCursorKeys();
       document.body.classList.add("rex-ready");
     }catch{}
@@ -125,7 +123,10 @@ class GameScene extends Phaser.Scene{
 
   createPlayer(){
     const shadow=this.add.ellipse(0,4,40,10,0x3d2c20,.18);
-    this.playerSprite=this.add.sprite(0,0,"hamster-walk",HAMSTER_FRAMES.down[0]).setOrigin(.5,1).setScale(2.15);
+    const idle=this.standardAssets.hamster.directions.down[0];
+    this.playerSprite=this.add.sprite(0,0,"hamster-standard",idle)
+      .setOrigin(.5,1)
+      .setScale(this.standardAssets.playerScale);
     this.player=this.add.container(W*.5,H*.62,[shadow,this.playerSprite]).setSize(54,56);
     this.physics.add.existing(this.player);
     this.playerBody=this.player.body as Phaser.Physics.Arcade.Body;
@@ -152,41 +153,57 @@ class GameScene extends Phaser.Scene{
     buildRoomBar(this,room.id);
     const nav=buildNavigationGrid(room,this.archetypes);
     const blocked=nav.data.reduce((n,row)=>n+row.filter(Boolean).length,0);
-    setStatus(`${room.name} · draft v${this.payload.version} · ${blocked} blocked nav cells`);
+    setStatus(`${room.name} · draft v${this.payload.version} · ${blocked} blocked nav cells · assets ${this.standardAssets.version}`);
   }
 
   drawRoom(room:Room){
     drawRoomBackdrop(this,room.theme,W,H).forEach((o,i)=>this.entityViews.set("__bg"+i,o));
     const title=this.add.text(18,16,room.name.toUpperCase(),{
-      fontFamily:"monospace",fontSize:"18px",color:"#513728",
-      backgroundColor:"#f7dfacdd",padding:{x:8,y:5}
+      fontFamily:"monospace",
+      fontSize:"18px",
+      color:"#513728",
+      backgroundColor:"#f7dfacdd",
+      padding:{x:8,y:5}
     }).setDepth(10000).setResolution(2);
     this.entityViews.set("__title",title);
   }
 
   spawnEntity(entity:Entity){
-    const x=(entity.position?.x??.5)*W,y=(entity.position?.y??.5)*H;
+    const x=(entity.position?.x??.5)*W;
+    const y=(entity.position?.y??.5)*H;
     const arch=this.archetypes.get(entity.archetype);
     const fallback=textureForArchetype(entity.archetype);
-    const localFrame=localFrameFor(entity.asset);
+    const standard=entity.asset?this.standardAssets.assets[entity.asset]:undefined;
+
     let sprite:Phaser.GameObjects.Image;
-    if(localFrame){
-      sprite=this.add.image(x,y,"env-atlas",localFrame).setOrigin(.5,1).setDepth(y).setScale(ENV_SCALE[localFrame]||1.3);
+    let visual:{x:number;y:number;width:number;height:number};
+
+    if(standard){
+      const scale=this.standardAssets.worldScale;
+      sprite=this.add.image(x,y,"std:"+standard.sheet,standard.frame)
+        .setOrigin(.5,1)
+        .setScale(scale)
+        .setDepth(y);
+      visual=visibleBoundsFor(x,y,standard,scale);
     }else{
       const texture=this.textureForAsset(entity.asset,fallback);
       sprite=this.add.image(x,y,texture).setOrigin(.5,1).setDepth(y);
       const baseW=this.textures.get(fallback).getSourceImage().width||48;
       const baseH=this.textures.get(fallback).getSourceImage().height||48;
       sprite.setDisplaySize(baseW*1.35,baseH*1.35);
+      const b=sprite.getBounds();
+      visual={x:b.x,y:b.y,width:b.width,height:b.height};
     }
+
     this.entityViews.set(entity.id,sprite);
+
     const collision=entity.physics?.collision||arch?.collision;
     if(collision?.mode&&collision.mode!=="none"){
       const n=collision.normalized||{x:.1,y:.68,w:.8,h:.25};
-      const b=sprite.getBounds();
-      const rw=Math.max(12,b.width*n.w),rh=Math.max(10,b.height*n.h);
-      const rx=x+b.width*(n.x+.5*n.w-.5);
-      const ry=y-b.height+b.height*(n.y+.5*n.h);
+      const rw=Math.max(12,visual.width*n.w);
+      const rh=Math.max(10,visual.height*n.h);
+      const rx=visual.x+visual.width*(n.x+.5*n.w);
+      const ry=visual.y+visual.height*(n.y+.5*n.h);
       const blocker=this.add.rectangle(rx,ry,rw,rh,0xff0000,0);
       this.physics.add.existing(blocker,true);
       this.blockers.add(blocker);
@@ -201,15 +218,17 @@ class GameScene extends Phaser.Scene{
     if(movement.right||this.arrows?.right.isDown||this.wasd?.D.isDown||this.joyKeys?.right?.isDown)dx++;
     if(movement.up||this.arrows?.up.isDown||this.wasd?.W.isDown||this.joyKeys?.up?.isDown)dy--;
     if(movement.down||this.arrows?.down.isDown||this.wasd?.S.isDown||this.joyKeys?.down?.isDown)dy++;
+
     const len=Math.hypot(dx,dy)||1;
     this.playerBody.setVelocity(dx/len*190,dy/len*190);
+
     if(dx||dy){
       if(Math.abs(dx)>Math.abs(dy))this.facing=dx<0?"left":"right";
       else this.facing=dy<0?"up":"down";
       this.playerSprite.play("hamster-walk-"+this.facing,true);
     }else{
       this.playerSprite.stop();
-      this.playerSprite.setFrame(HAMSTER_FRAMES[this.facing][0]);
+      this.playerSprite.setFrame(this.standardAssets.hamster.directions[this.facing][0]);
     }
     this.player.setDepth(this.player.y+20);
   }
@@ -218,7 +237,8 @@ class GameScene extends Phaser.Scene{
     const room=this.payload.world.rooms[this.currentRoom];
     let nearest:Entity|undefined,dist=Infinity;
     for(const entity of room.entities||[]){
-      const ex=(entity.position?.x??.5)*W,ey=(entity.position?.y??.5)*H;
+      const ex=(entity.position?.x??.5)*W;
+      const ey=(entity.position?.y??.5)*H;
       const d=Phaser.Math.Distance.Between(this.player.x,this.player.y,ex,ey);
       if(d<dist){dist=d;nearest=entity}
     }
@@ -241,16 +261,24 @@ function buildRoomBar(scene:GameScene,current:string){
 
 function bindActions(scene:GameScene){
   document.querySelector<HTMLButtonElement>("#interact")!.onclick=()=>scene.interact();
-  document.querySelector<HTMLButtonElement>("#build")!.onclick=()=>setStatus("Build mode uses the same archetype + placement pipeline as creator edits.");
+  document.querySelector<HTMLButtonElement>("#build")!.onclick=()=>setStatus(
+    "Build mode uses the same archetype + placement pipeline as creator edits."
+  );
 }
 
 new Phaser.Game({
-  type:Phaser.AUTO,parent:"game",width:W,height:H,backgroundColor:"#d8ba74",pixelArt:true,
+  type:Phaser.AUTO,
+  parent:"game",
+  width:W,
+  height:H,
+  backgroundColor:"#d8ba74",
+  pixelArt:true,
   physics:{default:"arcade",arcade:{debug:false}},
   plugins:{
     scene:[{key:"gridEngine",plugin:GridEngine,mapping:"gridEngine"}],
     global:[{key:"rexVirtualJoystick",plugin:VirtualJoystickPlugin,start:true}]
   },
   scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},
-  scene:[GameScene],input:{activePointers:3}
+  scene:[GameScene],
+  input:{activePointers:3}
 });
