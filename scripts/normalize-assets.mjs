@@ -221,6 +221,51 @@ async function buildSheet(sheetId,assets){
   };
 }
 
+async function normalizeHamsterFrame(buffer,authoredCell){
+  const logicalCell=authoredCell/PIXEL_QUANTUM;
+  const logicalGutter=1;
+  const logicalTargetMax=logicalCell-logicalGutter*2;
+
+  let cleaned=await cleanTinyComponents(buffer);
+  cleaned=await sharp(cleaned)
+    .trim({background:{r:0,g:0,b:0,alpha:0},threshold:8})
+    .png()
+    .toBuffer();
+
+  const meta=await sharp(cleaned).metadata();
+  const sourceW=meta.width||1;
+  const sourceH=meta.height||1;
+  const scale=logicalTargetMax/Math.max(sourceW,sourceH);
+  const logicalW=Math.max(1,Math.round(sourceW*scale));
+  const logicalH=Math.max(1,Math.round(sourceH*scale));
+
+  let sprite=await sharp(cleaned)
+    .resize(logicalW,logicalH,{kernel:"nearest",fit:"fill"})
+    .png()
+    .toBuffer();
+  sprite=await hardAlpha(sprite);
+
+  const x=Math.floor((logicalCell-logicalW)/2);
+  const y=logicalCell-logicalGutter-logicalH;
+
+  const logicalCanvas=await sharp({
+    create:{
+      width:logicalCell,
+      height:logicalCell,
+      channels:4,
+      background:{r:0,g:0,b:0,alpha:0}
+    }
+  }).composite([{input:sprite,left:x,top:y}]).png().toBuffer();
+
+  let authored=await sharp(logicalCanvas)
+    .resize(authoredCell,authoredCell,{kernel:"nearest",fit:"fill"})
+    .png({compressionLevel:9})
+    .toBuffer();
+  authored=await hardAlpha(authored);
+
+  return authored;
+}
+
 async function buildHamster(){
   const meta=await sharp(hamsterSource).metadata();
   if(meta.width!==128||meta.height!==128){
@@ -242,7 +287,7 @@ async function buildHamster(){
       .png()
       .toBuffer();
 
-    const authored=await pixelateFixedCell(raw,authoredCell);
+    const authored=await normalizeHamsterFrame(raw,authoredCell);
     const normalized=await sharp(authored)
       .resize(cell,cell,{kernel:"nearest",fit:"fill"})
       .png({compressionLevel:9})
@@ -257,8 +302,20 @@ async function buildHamster(){
     content.push(bounds);
   }
 
+  const visibleMax=content.map(b=>Math.max(b.w,b.h));
+  const minVisible=Math.min(...visibleMax);
+  const maxVisible=Math.max(...visibleMax);
+  if(maxVisible-minVisible>PIXEL_QUANTUM*FINAL_RENDER_MULTIPLIER){
+    throw new Error(`hamster frame scale drift detected: ${minVisible}..${maxVisible}`);
+  }
+
   const output=await sharp({
-    create:{width:cell*columns,height:cell*rows,channels:4,background:{r:0,g:0,b:0,alpha:0}}
+    create:{
+      width:cell*columns,
+      height:cell*rows,
+      channels:4,
+      background:{r:0,g:0,b:0,alpha:0}
+    }
   }).composite(layers).png({compressionLevel:9}).toBuffer();
 
   const hash=crypto.createHash("sha256").update(output).digest("hex").slice(0,10);
@@ -275,6 +332,7 @@ async function buildHamster(){
     rows,
     hash,
     content,
+    canonicalVisibleMax:maxVisible,
     directions:{
       up:[0,1,2,3],
       left:[4,5,6,7],
