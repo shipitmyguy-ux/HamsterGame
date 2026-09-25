@@ -1,0 +1,415 @@
+{
+  "frames": {
+    "wheel_home": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 93,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 93,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 93,
+        "h": 96
+      }
+    },
+    "wood_hideout": {
+      "frame": {
+        "x": 97,
+        "y": 2,
+        "w": 64,
+        "h": 53
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 53
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 53
+      }
+    },
+    "strawberry_hideout": {
+      "frame": {
+        "x": 163,
+        "y": 2,
+        "w": 64,
+        "h": 60
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 60
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 60
+      }
+    },
+    "purple_hideout": {
+      "frame": {
+        "x": 2,
+        "y": 100,
+        "w": 55,
+        "h": 56
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 55,
+        "h": 56
+      },
+      "sourceSize": {
+        "w": 55,
+        "h": 56
+      }
+    },
+    "tunnel_short": {
+      "frame": {
+        "x": 59,
+        "y": 100,
+        "w": 48,
+        "h": 39
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 39
+      },
+      "sourceSize": {
+        "w": 48,
+        "h": 39
+      }
+    },
+    "tunnel_long": {
+      "frame": {
+        "x": 109,
+        "y": 100,
+        "w": 64,
+        "h": 43
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 43
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 43
+      }
+    },
+    "water_bottle": {
+      "frame": {
+        "x": 175,
+        "y": 100,
+        "w": 32,
+        "h": 48
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 48
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 48
+      }
+    },
+    "food_bowl": {
+      "frame": {
+        "x": 2,
+        "y": 158,
+        "w": 56,
+        "h": 43
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 56,
+        "h": 43
+      },
+      "sourceSize": {
+        "w": 56,
+        "h": 43
+      }
+    },
+    "bedding_box": {
+      "frame": {
+        "x": 60,
+        "y": 158,
+        "w": 56,
+        "h": 54
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 56,
+        "h": 54
+      },
+      "sourceSize": {
+        "w": 56,
+        "h": 54
+      }
+    },
+    "stairs": {
+      "frame": {
+        "x": 118,
+        "y": 158,
+        "w": 43,
+        "h": 48
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 43,
+        "h": 48
+      },
+      "sourceSize": {
+        "w": 43,
+        "h": 48
+      }
+    },
+    "ladder": {
+      "frame": {
+        "x": 163,
+        "y": 158,
+        "w": 20,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 20,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 20,
+        "h": 40
+      }
+    },
+    "drawer": {
+      "frame": {
+        "x": 184,
+        "y": 158,
+        "w": 40,
+        "h": 39
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 39
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 39
+      }
+    },
+    "plant": {
+      "frame": {
+        "x": 2,
+        "y": 214,
+        "w": 40,
+        "h": 38
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 38
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 38
+      }
+    },
+    "rug": {
+      "frame": {
+        "x": 44,
+        "y": 214,
+        "w": 48,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 48,
+        "h": 32
+      }
+    },
+    "sticks": {
+      "frame": {
+        "x": 94,
+        "y": 214,
+        "w": 48,
+        "h": 23
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 23
+      },
+      "sourceSize": {
+        "w": 48,
+        "h": 23
+      }
+    },
+    "fluff": {
+      "frame": {
+        "x": 144,
+        "y": 214,
+        "w": 48,
+        "h": 39
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 39
+      },
+      "sourceSize": {
+        "w": 48,
+        "h": 39
+      }
+    },
+    "seeds": {
+      "frame": {
+        "x": 194,
+        "y": 214,
+        "w": 32,
+        "h": 22
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 22
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 22
+      }
+    },
+    "bolt": {
+      "frame": {
+        "x": 2,
+        "y": 255,
+        "w": 32,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      }
+    },
+    "nut": {
+      "frame": {
+        "x": 36,
+        "y": 255,
+        "w": 26,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 26,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 26,
+        "h": 32
+      }
+    },
+    "clover": {
+      "frame": {
+        "x": 64,
+        "y": 255,
+        "w": 32,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 29
+      }
+    }
+  },
+  "meta": {
+    "app": "HamsterGame",
+    "version": "1.0",
+    "image": "environment_atlas.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 256,
+      "h": 320
+    },
+    "scale": "1"
+  }
+}
