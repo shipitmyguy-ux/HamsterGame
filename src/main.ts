@@ -43,7 +43,7 @@ class GameScene extends Phaser.Scene{
   preload(){
     const base=import.meta.env.BASE_URL;
     this.load.spritesheet("hamster-walk",base+"assets/hamster_walk_4dir.png",{frameWidth:32,frameHeight:32});
-    this.load.image("env-atlas",base+"assets/environment_atlas.png");
+    this.load.atlas("env-atlas",base+"assets/environment_atlas.png",base+"assets/environment_atlas.json");
   }
 
   async create(){
@@ -54,7 +54,6 @@ class GameScene extends Phaser.Scene{
       this.arrows=this.input.keyboard!.createCursorKeys();
       this.wasd=this.input.keyboard!.addKeys("W,A,S,D") as Record<string,Phaser.Input.Keyboard.Key>;
       ensurePixelTextures(this);
-      this.registerLocalFrames();
       this.createHamsterAnimations();
       await this.loadGeneratedAssets();
       this.createPlayer();
@@ -63,13 +62,6 @@ class GameScene extends Phaser.Scene{
       bindActions(this);
     }catch(error){
       setStatus(error instanceof Error?error.message:String(error));
-    }
-  }
-
-  registerLocalFrames(){
-    const texture=this.textures.get("env-atlas");
-    for(const [name,frame] of Object.entries(ENV_FRAMES)){
-      if(!texture.has(name))texture.add(name,0,frame.x,frame.y,frame.w,frame.h);
     }
   }
 
