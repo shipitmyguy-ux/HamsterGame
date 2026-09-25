@@ -10,11 +10,7 @@ const catalogPath=path.join(root,"assets","asset-catalog.json");
 const catalog=JSON.parse(await fs.readFile(catalogPath,"utf8"));
 const sourceAtlas=path.join(root,catalog.sourceAtlas);
 const hamsterSource=path.join(root,"assets","source","hamster_source.png");
-const canonicalSheets={
-  items32:path.join(root,"assets","source","items_source.png"),
-  props64:path.join(root,"assets","source","props_source.png"),
-  structures96:path.join(root,"assets","source","wheel_source.png")
-};
+const canonicalSheets={};
 const outDir=path.join(root,"public","assets","generated");
 await fs.mkdir(outDir,{recursive:true});
 
