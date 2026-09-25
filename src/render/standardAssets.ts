@@ -33,8 +33,7 @@ export type HamsterManifest={
 export type StandardAssetManifest={
   schema:number;
   version:string;
-  worldScale:number;
-  playerScale:number;
+  rendererScale:number;
   sheets:Record<string,StandardSheet>;
   assets:Record<string,StandardAssetEntry>;
   hamster:HamsterManifest;
@@ -71,16 +70,14 @@ export async function loadStandardAssets(scene:Phaser.Scene):Promise<StandardAss
 export function visibleBoundsFor(
   x:number,
   y:number,
-  entry:StandardAssetEntry,
-  scale:number
+  entry:StandardAssetEntry
 ){
-  const full=entry.cell*scale;
-  const left=x-full/2;
-  const top=y-full;
+  const left=x-entry.cell/2;
+  const top=y-entry.cell;
   return {
-    x:left+entry.content.x*scale,
-    y:top+entry.content.y*scale,
-    width:entry.content.w*scale,
-    height:entry.content.h*scale
+    x:left+entry.content.x,
+    y:top+entry.content.y,
+    width:entry.content.w,
+    height:entry.content.h
   };
 }
