@@ -5,6 +5,7 @@ import "./styles.css";
 import { loadWorld, publicAssetUrl } from "./world";
 import { buildNavigationGrid } from "./pipeline/navigation";
 import { drawRoomBackdrop, ensurePixelTextures, textureForArchetype } from "./render/pixelArt";
+import { ENV_FRAMES, ENV_SCALE, HAMSTER_FRAMES, localFrameFor, type HamsterFacing } from "./render/assetFrames";
 import type { Archetype, Entity, Room, WorldPayload } from "./types";
 
 const W=960,H=600;
@@ -28,6 +29,8 @@ class GameScene extends Phaser.Scene{
   currentRoom="";
   player!:Phaser.GameObjects.Container;
   playerBody!:Phaser.Physics.Arcade.Body;
+  playerSprite!:Phaser.GameObjects.Sprite;
+  facing:HamsterFacing="down";
   blockers!:Phaser.Physics.Arcade.StaticGroup;
   arrows!:Phaser.Types.Input.Keyboard.CursorKeys;
   wasd!:Record<string,Phaser.Input.Keyboard.Key>;
@@ -37,6 +40,12 @@ class GameScene extends Phaser.Scene{
 
   constructor(){super("game")}
 
+  preload(){
+    const base=import.meta.env.BASE_URL;
+    this.load.spritesheet("hamster-walk",base+"assets/hamster_walk_4dir.png",{frameWidth:32,frameHeight:32});
+    this.load.image("env-atlas",base+"assets/environment_atlas.png");
+  }
+
   async create(){
     try{
       this.payload=await loadWorld("draft");
@@ -45,6 +54,8 @@ class GameScene extends Phaser.Scene{
       this.arrows=this.input.keyboard!.createCursorKeys();
       this.wasd=this.input.keyboard!.addKeys("W,A,S,D") as Record<string,Phaser.Input.Keyboard.Key>;
       ensurePixelTextures(this);
+      this.registerLocalFrames();
+      this.createHamsterAnimations();
       await this.loadGeneratedAssets();
       this.createPlayer();
       this.openRoom(this.currentRoom);
@@ -52,6 +63,26 @@ class GameScene extends Phaser.Scene{
       bindActions(this);
     }catch(error){
       setStatus(error instanceof Error?error.message:String(error));
+    }
+  }
+
+  registerLocalFrames(){
+    const texture=this.textures.get("env-atlas");
+    for(const [name,frame] of Object.entries(ENV_FRAMES)){
+      if(!texture.has(name))texture.add(name,0,frame.x,frame.y,frame.w,frame.h);
+    }
+  }
+
+  createHamsterAnimations(){
+    for(const [direction,frames] of Object.entries(HAMSTER_FRAMES)){
+      const key="hamster-walk-"+direction;
+      if(this.anims.exists(key))continue;
+      this.anims.create({
+        key,
+        frames:frames.map(frame=>({key:"hamster-walk",frame})),
+        frameRate:8,
+        repeat:-1
+      });
     }
   }
 
@@ -86,16 +117,12 @@ class GameScene extends Phaser.Scene{
   }
 
   createPlayer(){
-    const shadow=this.add.ellipse(0,4,38,10,0x3d2c20,.18);
-    const playerAsset=String(this.payload.world.player.asset||"");
-    const texture=this.textureForAsset(playerAsset,"px-hamster-down");
-    const sprite=this.add.image(0,0,texture).setOrigin(.5,1);
-    const fallback=texture==="px-hamster-down";
-    sprite.setDisplaySize(fallback?58:68,fallback?58:68);
-    this.player=this.add.container(W*.5,H*.62,[shadow,sprite]).setSize(52,52);
+    const shadow=this.add.ellipse(0,4,40,10,0x3d2c20,.18);
+    this.playerSprite=this.add.sprite(0,0,"hamster-walk",HAMSTER_FRAMES.down[0]).setOrigin(.5,1).setScale(2.15);
+    this.player=this.add.container(W*.5,H*.62,[shadow,this.playerSprite]).setSize(54,56);
     this.physics.add.existing(this.player);
     this.playerBody=this.player.body as Phaser.Physics.Arcade.Body;
-    this.playerBody.setCollideWorldBounds(true).setSize(34,24).setOffset(9,24);
+    this.playerBody.setCollideWorldBounds(true).setSize(34,23).setOffset(10,29);
     this.player.setDepth(this.player.y+20);
   }
 
@@ -134,11 +161,17 @@ class GameScene extends Phaser.Scene{
     const x=(entity.position?.x??.5)*W,y=(entity.position?.y??.5)*H;
     const arch=this.archetypes.get(entity.archetype);
     const fallback=textureForArchetype(entity.archetype);
-    const texture=this.textureForAsset(entity.asset,fallback);
-    const sprite=this.add.image(x,y,texture).setOrigin(.5,1).setDepth(y);
-    const baseW=this.textures.get(fallback).getSourceImage().width||48;
-    const baseH=this.textures.get(fallback).getSourceImage().height||48;
-    sprite.setDisplaySize(baseW*1.35,baseH*1.35);
+    const localFrame=localFrameFor(entity.asset);
+    let sprite:Phaser.GameObjects.Image;
+    if(localFrame){
+      sprite=this.add.image(x,y,"env-atlas",localFrame).setOrigin(.5,1).setDepth(y).setScale(ENV_SCALE[localFrame]||1.3);
+    }else{
+      const texture=this.textureForAsset(entity.asset,fallback);
+      sprite=this.add.image(x,y,texture).setOrigin(.5,1).setDepth(y);
+      const baseW=this.textures.get(fallback).getSourceImage().width||48;
+      const baseH=this.textures.get(fallback).getSourceImage().height||48;
+      sprite.setDisplaySize(baseW*1.35,baseH*1.35);
+    }
     this.entityViews.set(entity.id,sprite);
     const collision=entity.physics?.collision||arch?.collision;
     if(collision?.mode&&collision.mode!=="none"){
@@ -163,6 +196,14 @@ class GameScene extends Phaser.Scene{
     if(movement.down||this.arrows?.down.isDown||this.wasd?.S.isDown||this.joyKeys?.down?.isDown)dy++;
     const len=Math.hypot(dx,dy)||1;
     this.playerBody.setVelocity(dx/len*190,dy/len*190);
+    if(dx||dy){
+      if(Math.abs(dx)>Math.abs(dy))this.facing=dx<0?"left":"right";
+      else this.facing=dy<0?"up":"down";
+      this.playerSprite.play("hamster-walk-"+this.facing,true);
+    }else{
+      this.playerSprite.stop();
+      this.playerSprite.setFrame(HAMSTER_FRAMES[this.facing][0]);
+    }
     this.player.setDepth(this.player.y+20);
   }
 
