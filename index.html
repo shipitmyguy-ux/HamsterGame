@@ -9,9 +9,20 @@
 <body>
   <main id="app">
     <div id="game-shell">
-      <div id="room-bar" aria-label="Prototype room picker"></div>
+      <div id="top-tools"><div id="room-bar" aria-label="Prototype room picker"></div><button id="creator-toggle" type="button">✨ CREATE</button></div>
       <div id="game"></div>
       <div id="status">Loading HamsterGame…</div>
+      <section id="creator-panel" hidden aria-label="HamsterGame creator">
+        <div class="creator-head"><strong>✨ Creator Mode</strong><button id="creator-close" type="button">×</button></div>
+        <p id="creator-state">This device is not authorized yet.</p>
+        <label class="creator-key-row">Creator key <input id="creator-key" type="password" autocomplete="off" placeholder="Paste family creator key"></label>
+        <button id="creator-save-key" type="button">Authorize this device</button>
+        <label class="creator-command">What should we change?
+          <textarea id="creator-prompt" rows="3" placeholder="Add a pink chair next to the bed"></textarea>
+        </label>
+        <button id="creator-apply" type="button">✨ MAKE IT</button>
+        <div id="creator-result" aria-live="polite"></div>
+      </section>
       <div id="touch-controls" aria-label="Touch controls">
         <div class="dpad">
           <button data-move="up" aria-label="Move up">▲</button>
@@ -27,5 +38,6 @@
     </div>
   </main>
   <script type="module" src="/src/main.ts"></script>
+  <script type="module" src="/src/creator.ts"></script>
 </body>
 </html>
