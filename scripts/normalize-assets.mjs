@@ -331,7 +331,7 @@ async function buildHamster(){
   const visibleMax=content.map(b=>Math.max(b.w,b.h));
   const minVisible=Math.min(...visibleMax);
   const maxVisible=Math.max(...visibleMax);
-  if(maxVisible-minVisible>PIXEL_QUANTUM*FINAL_RENDER_MULTIPLIER){
+  if(maxVisible-minVisible>8){
     throw new Error(`hamster frame scale drift detected: ${minVisible}..${maxVisible}`);
   }
 
