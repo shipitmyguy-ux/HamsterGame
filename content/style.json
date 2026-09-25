@@ -30,5 +30,31 @@
     "consistent light direction",
     "no text baked into sprites",
     "use approved hamster proportions"
-  ]
+  ],
+  "asset_standard": {
+    "player_frame_px": 32,
+    "world_cells": {
+      "item": {
+        "size_px": 32,
+        "gutter_px": 2
+      },
+      "prop": {
+        "size_px": 64,
+        "gutter_px": 4
+      },
+      "structure": {
+        "size_px": 96,
+        "gutter_px": 4
+      }
+    },
+    "baseline": "bottom aligned inside protected gutter",
+    "runtime_world_scale": 1.7,
+    "rules": [
+      "world sprites must be normalized before runtime",
+      "runtime must never hand-crop production sprite sheets",
+      "do not trim standardized cells after normalization",
+      "opaque pixels may not enter the protected gutter",
+      "collision derives from visible content bounds, not full transparent cell"
+    ]
+  }
 }
