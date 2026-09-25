@@ -3,7 +3,7 @@ export type AtlasFrame={x:number;y:number;w:number;h:number};
 export const ENV_FRAMES:Record<string,AtlasFrame>={
   wheel_home:{x:2,y:2,w:92,h:96},
   wood_hideout:{x:97,y:2,w:64,h:48},
-  strawberry_hideout:{x:163,y:2,w:64,h:59},
+  strawberry_hideout:{x:163,y:2,w:62,h:59},
   purple_hideout:{x:8,y:100,w:49,h:53},
   tunnel_short:{x:59,y:100,w:48,h:38},
   tunnel_long:{x:112,y:100,w:61,h:39},
