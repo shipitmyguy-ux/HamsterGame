@@ -3,10 +3,10 @@ const STORAGE_KEY="hamsterCreatorKey";
 
 const panel=document.querySelector<HTMLElement>("#creator-panel")!;
 const toggle=document.querySelector<HTMLButtonElement>("#creator-toggle")!;
-const close=document.querySelector<HTMLButtonElement>("#creator-close")!;
+const closeButton=document.querySelector<HTMLButtonElement>("#creator-close")!;
 const keyInput=document.querySelector<HTMLInputElement>("#creator-key")!;
 const saveKey=document.querySelector<HTMLButtonElement>("#creator-save-key")!;
-const prompt=document.querySelector<HTMLTextAreaElement>("#creator-prompt")!;
+const promptInput=document.querySelector<HTMLTextAreaElement>("#creator-prompt")!;
 const apply=document.querySelector<HTMLButtonElement>("#creator-apply")!;
 const state=document.querySelector<HTMLElement>("#creator-state")!;
 const result=document.querySelector<HTMLElement>("#creator-result")!;
@@ -30,18 +30,18 @@ function importHashKey(){
   refreshState();
 }
 
-toggle.addEventListener("click",()=>{panel.hidden=!panel.hidden;if(!panel.hidden)prompt.focus()});
-close.addEventListener("click",()=>panel.hidden=true);
+toggle.addEventListener("click",()=>{panel.hidden=!panel.hidden;if(!panel.hidden)promptInput.focus()});
+closeButton.addEventListener("click",()=>panel.hidden=true);
 saveKey.addEventListener("click",()=>{
   const key=keyInput.value.trim();
   if(!key){setResult("Paste the family creator key first.","bad");return}
   localStorage.setItem(STORAGE_KEY,key);
   setResult("Creator key saved.","good");
   refreshState();
-  prompt.focus();
+  promptInput.focus();
 });
 apply.addEventListener("click",async()=>{
-  const creatorKey=getKey(),text=prompt.value.trim();
+  const creatorKey=getKey(),text=promptInput.value.trim();
   if(!creatorKey){setResult("Authorize this device first.","bad");return}
   if(!text){setResult("Say or type what you want to change.","bad");return}
   apply.disabled=true;
