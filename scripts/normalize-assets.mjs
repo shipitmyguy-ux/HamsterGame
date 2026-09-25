@@ -5,6 +5,7 @@ import sharp from "sharp";
 
 const root=process.cwd();
 const PIXEL_QUANTUM=2;
+const FINAL_RENDER_MULTIPLIER=2;
 const catalogPath=path.join(root,"assets","asset-catalog.json");
 const catalog=JSON.parse(await fs.readFile(catalogPath,"utf8"));
 const sourceAtlas=path.join(root,catalog.sourceAtlas);
@@ -156,9 +157,12 @@ async function pixelateFixedCell(buffer,cell){
 
 async function buildSheet(sheetId,assets){
   const spec=catalog.sheets[sheetId];
+  const sourceCell=spec.cell;
+  const finalCell=sourceCell*FINAL_RENDER_MULTIPLIER;
+  const finalGutter=spec.gutter*FINAL_RENDER_MULTIPLIER;
   const rows=Math.ceil(assets.length/spec.columns);
-  const width=spec.columns*spec.cell;
-  const height=rows*spec.cell;
+  const width=spec.columns*finalCell;
+  const height=rows*finalCell;
   const layers=[];
   const manifestAssets={};
 
@@ -174,21 +178,22 @@ async function buildSheet(sheetId,assets){
       .png()
       .toBuffer();
 
-    const normalized=await normalizeSprite(raw,spec.cell,spec.gutter);
+    const normalized=await normalizeSprite(raw,finalCell,finalGutter);
     const col=index%spec.columns;
     const row=Math.floor(index/spec.columns);
 
     layers.push({
       input:normalized.buffer,
-      left:col*spec.cell,
-      top:row*spec.cell
+      left:col*finalCell,
+      top:row*finalCell
     });
 
     manifestAssets[asset.id]={
       sheet:sheetId,
       frame:index,
-      cell:spec.cell,
-      pixelQuantum:PIXEL_QUANTUM,
+      cell:finalCell,
+      authoredCell:sourceCell,
+      pixelQuantum:PIXEL_QUANTUM*FINAL_RENDER_MULTIPLIER,
       content:normalized.content
     };
   }
@@ -203,9 +208,10 @@ async function buildSheet(sheetId,assets){
 
   return{
     file,
-    cell:spec.cell,
-    logicalCell:spec.cell/PIXEL_QUANTUM,
-    pixelQuantum:PIXEL_QUANTUM,
+    cell:finalCell,
+    authoredCell:sourceCell,
+    logicalCell:sourceCell/PIXEL_QUANTUM,
+    pixelQuantum:PIXEL_QUANTUM*FINAL_RENDER_MULTIPLIER,
     columns:spec.columns,
     rows,
     width,
@@ -221,7 +227,8 @@ async function buildHamster(){
     throw new Error("hamster source must be 128x128");
   }
 
-  const cell=32;
+  const authoredCell=32;
+  const cell=authoredCell*FINAL_RENDER_MULTIPLIER;
   const columns=4;
   const rows=4;
   const layers=[];
@@ -235,7 +242,11 @@ async function buildHamster(){
       .png()
       .toBuffer();
 
-    const normalized=await pixelateFixedCell(raw,cell);
+    const authored=await pixelateFixedCell(raw,authoredCell);
+    const normalized=await sharp(authored)
+      .resize(cell,cell,{kernel:"nearest",fit:"fill"})
+      .png({compressionLevel:9})
+      .toBuffer();
     const bounds=await contentBounds(normalized);
 
     layers.push({
@@ -247,7 +258,7 @@ async function buildHamster(){
   }
 
   const output=await sharp({
-    create:{width:128,height:128,channels:4,background:{r:0,g:0,b:0,alpha:0}}
+    create:{width:cell*columns,height:cell*rows,channels:4,background:{r:0,g:0,b:0,alpha:0}}
   }).composite(layers).png({compressionLevel:9}).toBuffer();
 
   const hash=crypto.createHash("sha256").update(output).digest("hex").slice(0,10);
@@ -257,8 +268,9 @@ async function buildHamster(){
   return{
     file,
     cell,
-    logicalCell:cell/PIXEL_QUANTUM,
-    pixelQuantum:PIXEL_QUANTUM,
+    authoredCell,
+    logicalCell:authoredCell/PIXEL_QUANTUM,
+    pixelQuantum:PIXEL_QUANTUM*FINAL_RENDER_MULTIPLIER,
     columns,
     rows,
     hash,
@@ -305,9 +317,9 @@ const fingerprint=crypto.createHash("sha256")
 const manifest={
   schema:2,
   version:fingerprint,
-  pixelQuantum:PIXEL_QUANTUM,
-  worldScale:2,
-  playerScale:2,
+  authoredPixelQuantum:PIXEL_QUANTUM,
+  finalPixelQuantum:PIXEL_QUANTUM*FINAL_RENDER_MULTIPLIER,
+  rendererScale:1,
   sheets,
   assets,
   hamster
@@ -333,5 +345,5 @@ for(const entry of await fs.readdir(outDir)){
 }
 
 console.log(
-  `Normalized ${Object.keys(assets).length} assets + 16 hamster frames at ${PIXEL_QUANTUM}x pixel quantum. Manifest ${fingerprint}.`
+  `Normalized ${Object.keys(assets).length} assets + 16 hamster frames to final display pixels; renderer scale=1. Manifest ${fingerprint}.`
 );
