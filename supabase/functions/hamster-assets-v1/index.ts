@@ -12,7 +12,7 @@ function cors(req:Request){
   const origin=req.headers.get("origin")||"";
   return {
     "Access-Control-Allow-Origin":ALLOWED.has(origin)?origin:"https://shipitmyguy-ux.github.io",
-    "Access-Control-Allow-Headers":"content-type,authorization,apikey",
+    "Access-Control-Allow-Headers":"content-type,authorization,apikey,x-hamster-creator",
     "Access-Control-Allow-Methods":"POST,OPTIONS",
     "Content-Type":"application/json",
     "Cache-Control":"no-store",
@@ -32,9 +32,23 @@ function claims(req:Request){
     return JSON.parse(atob(n));
   }catch{return {}}
 }
-function isCreator(req:Request){
+async function sha256(value:string){
+  const bytes=new TextEncoder().encode(value);
+  const hash=await crypto.subtle.digest("SHA-256",bytes);
+  return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+async function isCreator(req:Request){
   const c:any=claims(req);
-  return c?.app_metadata?.hamster_creator===true;
+  if(c?.app_metadata?.hamster_creator===true)return true;
+  const token=String(req.headers.get("x-hamster-creator")||"").trim();
+  if(!token)return false;
+  const url=Deno.env.get("SUPABASE_URL")||"";
+  const key=secretKey();
+  if(!url||!key)return false;
+  const supabase=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
+  const hash=await sha256(token);
+  const {data,error}=await supabase.from("hamster_creator_tokens").select("token_hash").eq("token_hash",hash).eq("enabled",true).limit(1);
+  return !error&&Boolean(data?.length);
 }
 function secretKey(){
   const modern=Deno.env.get("SUPABASE_SECRET_KEYS");
@@ -49,7 +63,7 @@ Deno.serve(async(req:Request)=>{
   if(req.method!=="POST")return json(req,{error:"POST required"},405);
   const origin=req.headers.get("origin")||"";
   if(origin&&!ALLOWED.has(origin))return json(req,{error:"origin not allowed"},403);
-  if(!isCreator(req))return json(req,{error:"creator access required"},403);
+  if(!(await isCreator(req)))return json(req,{error:"creator access required"},403);
 
   try{
     const body=await req.json();
