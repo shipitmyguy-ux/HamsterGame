@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { GridEngine } from "grid-engine";
 import VirtualJoystickPlugin from "phaser3-rex-plugins/plugins/virtualjoystick-plugin.js";
 import "./styles.css";
-import { loadWorld } from "./world";
+import { loadWorld, publicAssetUrl } from "./world";
 import { buildNavigationGrid } from "./pipeline/navigation";
 import { drawRoomBackdrop, ensurePixelTextures, textureForArchetype } from "./render/pixelArt";
 import type { Archetype, Entity, Room, WorldPayload } from "./types";
@@ -45,6 +45,7 @@ class GameScene extends Phaser.Scene{
       this.arrows=this.input.keyboard!.createCursorKeys();
       this.wasd=this.input.keyboard!.addKeys("W,A,S,D") as Record<string,Phaser.Input.Keyboard.Key>;
       ensurePixelTextures(this);
+      await this.loadGeneratedAssets();
       this.createPlayer();
       this.openRoom(this.currentRoom);
       this.createTouchJoystick();
@@ -52,6 +53,24 @@ class GameScene extends Phaser.Scene{
     }catch(error){
       setStatus(error instanceof Error?error.message:String(error));
     }
+  }
+
+  async loadGeneratedAssets(){
+    const ready=(this.payload.assets||[]).filter(a=>a.status==="ready"&&a.file_path);
+    if(!ready.length)return;
+    for(const asset of ready){
+      const key="asset:"+asset.asset_id;
+      if(!this.textures.exists(key))this.load.image(key,publicAssetUrl(String(asset.file_path)));
+    }
+    await new Promise<void>((resolve)=>{
+      this.load.once(Phaser.Loader.Events.COMPLETE,()=>resolve());
+      this.load.start();
+    });
+  }
+
+  textureForAsset(assetId:string|undefined,fallback:string){
+    const key=assetId?"asset:"+assetId:"";
+    return key&&this.textures.exists(key)?key:fallback;
   }
 
   createTouchJoystick(){
@@ -68,7 +87,11 @@ class GameScene extends Phaser.Scene{
 
   createPlayer(){
     const shadow=this.add.ellipse(0,4,38,10,0x3d2c20,.18);
-    const sprite=this.add.image(0,0,"px-hamster-down").setOrigin(.5,1).setScale(1.45);
+    const playerAsset=String(this.payload.world.player.asset||"");
+    const texture=this.textureForAsset(playerAsset,"px-hamster-down");
+    const sprite=this.add.image(0,0,texture).setOrigin(.5,1);
+    const fallback=texture==="px-hamster-down";
+    sprite.setDisplaySize(fallback?58:68,fallback?58:68);
     this.player=this.add.container(W*.5,H*.62,[shadow,sprite]).setSize(52,52);
     this.physics.add.existing(this.player);
     this.playerBody=this.player.body as Phaser.Physics.Arcade.Body;
@@ -110,7 +133,12 @@ class GameScene extends Phaser.Scene{
   spawnEntity(entity:Entity){
     const x=(entity.position?.x??.5)*W,y=(entity.position?.y??.5)*H;
     const arch=this.archetypes.get(entity.archetype);
-    const sprite=this.add.image(x,y,textureForArchetype(entity.archetype)).setOrigin(.5,1).setScale(1.35).setDepth(y);
+    const fallback=textureForArchetype(entity.archetype);
+    const texture=this.textureForAsset(entity.asset,fallback);
+    const sprite=this.add.image(x,y,texture).setOrigin(.5,1).setDepth(y);
+    const baseW=this.textures.get(fallback).getSourceImage().width||48;
+    const baseH=this.textures.get(fallback).getSourceImage().height||48;
+    sprite.setDisplaySize(baseW*1.35,baseH*1.35);
     this.entityViews.set(entity.id,sprite);
     const collision=entity.physics?.collision||arch?.collision;
     if(collision?.mode&&collision.mode!=="none"){
