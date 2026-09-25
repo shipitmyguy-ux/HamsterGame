@@ -48,13 +48,18 @@
       }
     },
     "baseline": "bottom aligned inside protected gutter",
-    "runtime_world_scale": 1.7,
+    "runtime_world_scale": 2,
     "rules": [
+      "all production world art uses the same 2x pixel quantum",
+      "all hamster animation frames preserve fixed registration",
       "world sprites must be normalized before runtime",
       "runtime must never hand-crop production sprite sheets",
       "do not trim standardized cells after normalization",
       "opaque pixels may not enter the protected gutter",
-      "collision derives from visible content bounds, not full transparent cell"
-    ]
+      "collision derives from visible content bounds, not full transparent cell",
+      "runtime sprite scale must be an integer to preserve pixel block consistency"
+    ],
+    "pixel_quantum": 2,
+    "player_scale": 2
   }
 }
