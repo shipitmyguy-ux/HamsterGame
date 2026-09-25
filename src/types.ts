@@ -14,6 +14,16 @@ export type Archetype = {
   defaults:Record<string,unknown>;
 };
 
+export type Asset = {
+  asset_id:string;
+  kind:string;
+  source:string;
+  status:string;
+  file_path?:string|null;
+  metadata?:Record<string,unknown>;
+  physics?:Record<string,unknown>;
+};
+
 export type Entity = {
   id:string;
   name?:string;
@@ -22,6 +32,7 @@ export type Entity = {
   emoji?:string;
   position?:{x:number;y:number};
   physics?:{collision?:Collision;[key:string]:unknown};
+  placement?:{footprint?:number[];[key:string]:unknown};
   sorting?:{anchor_y?:number;[key:string]:unknown};
   interaction?:{radius?:number;[key:string]:unknown};
 };
@@ -37,7 +48,7 @@ export type Room = {
 export type World = {
   schema_version:number;
   meta:Record<string,unknown>;
-  player:{start_room:string;[key:string]:unknown};
+  player:{start_room:string;asset?:string;[key:string]:unknown};
   rooms:Record<string,Room>;
   items:Record<string,unknown>;
   recipes:Record<string,unknown>;
@@ -50,4 +61,5 @@ export type WorldPayload = {
   version:number;
   world:World;
   archetypes:Archetype[];
+  assets?:Asset[];
 };
