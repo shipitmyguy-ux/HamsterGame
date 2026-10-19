@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["Bash(node --check:*)", "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(npm run typecheck:*)", "Bash(npm run build:*)"],
+    "deny": ["Read(node_modules/**)", "Read(dist/**)", "Read(assets/source/**)"]
+  }
+}
