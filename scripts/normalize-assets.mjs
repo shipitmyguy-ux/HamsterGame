@@ -9,7 +9,7 @@ const FINAL_RENDER_MULTIPLIER=2;
 const catalogPath=path.join(root,"assets","asset-catalog.json");
 const catalog=JSON.parse(await fs.readFile(catalogPath,"utf8"));
 const sourceAtlas=path.join(root,catalog.sourceAtlas);
-const hamsterSource=path.join(root,"assets","source","hamster_source.png");
+const hamsterSource=path.join(root,catalog.hamsterSource);
 const canonicalSheets={};
 const outDir=path.join(root,"public","assets","generated");
 await fs.mkdir(outDir,{recursive:true});
