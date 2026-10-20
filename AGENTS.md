@@ -14,6 +14,7 @@ Requests come from children, so keep changes tiny and visible.
 2. Never hardcode content in `src/` that the data files already hold.
 3. Keep changes tiny. No new dependencies (versions in `package.json` are pinned on purpose).
 4. NEVER open image files (PNG etc.); read the catalog or docs instead. Do not touch `assets/source/`.
+5. Every change is committed straight to `main` after `npm run typecheck` and `npm run build` pass; no pull requests (Mike decided 2026-10-20).
 
 ## Checking
 `npm install`, then `npm run typecheck` and `npm run build`. For the gate, set localStorage `familyGamesUnlock` to the hash in `public/gate.js` (`e9ca42b535c4046696d89181ecb0964bf863dd96be1a8114fb78e255ede5d8b6`).
